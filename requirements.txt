@@ -1,0 +1,9 @@
+transformers>=4.45,<5
+huggingface_hub>=0.25
+pandas>=2.0
+numpy>=1.26
+Pillow>=10
+scikit-learn>=1.4
+tqdm>=4.66
+
+# Install a CUDA-enabled PyTorch build separately, matching the local driver.

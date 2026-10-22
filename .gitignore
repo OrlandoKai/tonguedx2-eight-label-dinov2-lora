@@ -1,0 +1,8 @@
+.venv/
+runs/
+models/
+__pycache__/
+*.py[cod]
+*.pt
+*.pth
+*.safetensors

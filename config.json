@@ -1,0 +1,73 @@
+{
+  "experiment": "tonguedx2_8label_dinov2_vits14_lora",
+  "label_order": [
+    "TonguePale",
+    "TipSideRed",
+    "Spot",
+    "Ecchymosis",
+    "Crack",
+    "Toothmark",
+    "FurThick",
+    "FurYellow"
+  ],
+  "model": {
+    "hf_repo": "facebook/dinov2-small",
+    "architecture": "DINOv2 ViT-S/14",
+    "input_size": 336,
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "lora_targets": [
+      "attention.attention.query",
+      "attention.attention.key",
+      "attention.attention.value",
+      "mlp.fc1",
+      "mlp.fc2"
+    ],
+    "readout": "mean_patch_pool -> Linear(384,512) -> ReLU -> Dropout(0.3) -> Linear(512,8)",
+    "normalization_mean": [0.485, 0.456, 0.406],
+    "normalization_std": [0.229, 0.224, 0.225]
+  },
+  "training": {
+    "epochs": 80,
+    "patience": 12,
+    "batch_size": 4,
+    "gradient_accumulation": 4,
+    "lora_learning_rate": 0.0001,
+    "head_learning_rate": 0.0003,
+    "weight_decay": 0.01,
+    "optimizer": "AdamW",
+    "scheduler": "CosineAnnealingWarmRestarts(T_0=10,T_mult=2)",
+    "ema_decay": 0.999,
+    "amp": "float16",
+    "loss": "BCEWithLogitsLoss(pos_weight=N_negative/N_positive)",
+    "seed": 42,
+    "select_checkpoint_by": "validation_macro_auprc",
+    "calibrate_thresholds_on": "validation_per_label_max_f1",
+    "test_is_never_used_for_selection": true
+  },
+  "augmentation": {
+    "horizontal_flip_probability": 0.5,
+    "rotation_degrees": 5,
+    "brightness": 0.05,
+    "saturation": 0.05,
+    "hue": 0.01,
+    "mixup": false,
+    "cutmix": false
+  },
+  "data": {
+    "images_subdir": "seg",
+    "train_csv_pattern": "list/train_fold{fold}.csv",
+    "val_csv_pattern": "list/val_fold{fold}.csv",
+    "test_csv": "list/test.csv",
+    "subject_key": "id",
+    "image_key": "image_path"
+  },
+  "provenance": {
+    "paper": "What Makes Deep Learning Work for Traditional Chinese Medicine Tongue Diagnosis? A Comprehensive Ablation Study",
+    "arxiv": "2607.28148",
+    "paper_code_public": false,
+    "paper_dinov2_config": "ViT-S/14; input 336; LoRA r=16 alpha=32 on qkv/fc1/fc2; GAP, 512 projection, ReLU, dropout 0.3; AdamW, AMP, cosine warm restarts",
+    "adaptation_note": "Paper backbone ablation v17 used 976 expert-annotated samples with 11 groups/38 classes. This config adapts its reported backbone/LoRA/readout settings to the release's eight binary labels and supplied folds; it is not an exact reproduction of the paper's v17 data protocol."
+  }
+}
